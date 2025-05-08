@@ -124,8 +124,63 @@ func getBodyById(context *gin.Context){
 	todo, err := getByID(idInt)
 	if err != nil{
 		context.IndentedJSON(http.StatusNotFound, gin.H{"error":"Id not found"})
+		return
 	}
 	context.IndentedJSON(http.StatusOK, todo.Body)
+}
+func toggleCompleteStatus(context *gin.Context){
+	id := context.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error":"Invalid id format"})
+		return
+	}
+	todo, err := getByID(idInt)
+	if err != nil {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"error": "todo not found"})
+		return
+	}
+	if todo.Completed {
+		todo.Completed = false
+	}else{
+		todo.Completed = true
+	}
+}
+func toggleDailyStatus(context *gin.Context){
+	id := context.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error":"Invalid id format"})
+		return
+	}
+	todo, err := getByID(idInt)
+	if err != nil {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"error": "todo not found"})
+		return
+	}
+	if todo.Daily {
+		todo.Daily = false
+	}else{
+		todo.Daily = true
+	}
+}
+func toggleImportStatus(context *gin.Context){
+	id := context.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"error":"Invalid id format"})
+		return
+	}
+	todo, err := getByID(idInt)
+	if err != nil {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"error": "todo not found"})
+		return
+	}
+	if todo.Important {
+		todo.Important = false
+	}else{
+		todo.Important = true
+	}
 }
 func main() {
 	fmt.Println("hello world")
@@ -137,5 +192,8 @@ func main() {
 	router.GET("/todolist/completed", getCompletedTodo)
 	router.GET("/todolist/daily", getDailyTodo)
 	router.POST("/todolist", addToList)
+	router.PATCH("/todolist/complete/:id", toggleCompleteStatus)
+	router.PATCH("/todolist/daily/:id", toggleDailyStatus)
+	router.PATCH("/todolist/import/:id", toggleImportStatus)
 	router.Run("localhost:8080")
 }
